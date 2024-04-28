@@ -1,0 +1,33 @@
+# https://github.com/vitejs/vite/discussions/6146
+version: '3'
+networks:
+  distributed_frontends:
+    name: distributed_frontends
+services:
+  frontend_one:
+    build:
+      context: .
+      dockerfile: ./docker/frontend_one/Dockerfile
+    ports:
+      - "5173:5173"
+    networks:
+      - distributed_frontends
+    # volumes:
+    #   - ./frontend_one:/usr/src/app
+    # command: npm run dev
+  frontend_two:
+    build:
+      context: .
+      dockerfile: ./docker/frontend_two/Dockerfile
+    ports:
+      - "5174:5173"
+    networks:
+      - distributed_frontends
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - distributed_frontends
