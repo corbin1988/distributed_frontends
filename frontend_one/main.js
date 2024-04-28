@@ -1,24 +1,33 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+// Open (or create) the database
+let open = indexedDB.open("MyDatabase", 1);
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>Hello Vite!</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+// Create the schema
+open.onupgradeneeded = function () {
+  let db = open.result;
+  let store = db.createObjectStore("MyObjectStore", { keyPath: "id" });
+  let index = store.createIndex("EmailIndex", ["email"]);
+};
 
-setupCounter(document.querySelector('#counter'))
+open.onsuccess = function () {
+  // Start a new transaction
+  let db = open.result;
+  let tx = db.transaction("MyObjectStore", "readwrite");
+  let store = tx.objectStore("MyObjectStore");
+  let index = store.index("EmailIndex");
+
+  // Add event listener to the sign in button
+  document.getElementById("signInButton").addEventListener("click", function () {
+    // Start a new transaction
+    let tx = db.transaction("MyObjectStore", "readwrite");
+    let store = tx.objectStore("MyObjectStore");
+
+    // Get the email and username input values
+    let emailInput = document.getElementById("emailInput").value;
+    let usernameInput = document.getElementById("usernameInput").value;
+
+    // Add the email and username to the object store
+    store.put({ id: 1, email: emailInput, username: usernameInput });
+
+    window.location.href = "http://localhost:8080/frontend_two/";
+  });
+};
